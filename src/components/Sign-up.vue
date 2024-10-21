@@ -7,13 +7,15 @@
       <input v-model="form.mobileNumber" type="text" placeholder="Mobile Number" class="input" />
       <input v-model="form.email" type="email" placeholder="Email" class="input" />
       <input v-model="form.password" type="password" placeholder="Password" class="input" minlength="6" />
-      <button type="submit" class="btn">Register</button>
+      <button type="submit" :disabled="isLoading" class="btn">
+        {{ isLoading ? "Registering..." : "Register" }}
+      </button>
     </form>
   </div>
 </template>
 
 <script lang="ts">
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 
@@ -28,8 +30,11 @@ export default {
       password: ""
     });
 
+    const isLoading = ref(false);
     const register = async () => {
+      isLoading.value = true;
       try {
+
         const response = await axios.post(
           `${import.meta.env.VITE_API_BASE_URL}/user/register`,
           form
@@ -41,32 +46,12 @@ export default {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         alert(error?.response?.data?.message || "Registration Failed. Please try again.");
+      } finally {
+        isLoading.value = false;
       }
     };
 
-    return { form, register };
+    return { form, register, isLoading };
   },
 };
 </script>
-
-<style scoped>
-.input {
-  display: block;
-  width: 100%;
-  padding: 0.5rem;
-  margin-bottom: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.btn {
-  display: block;
-  width: 100%;
-  padding: 0.75rem;
-  background-color: #4f46e5;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-</style>
